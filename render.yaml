@@ -1,0 +1,53 @@
+# Render Blueprint (must live at the repo root).
+# Native Python runtime (no Docker) + a managed Postgres DB so ingested repos
+# and generated docs PERSIST across restarts (Render's instance disk is
+# ephemeral, which would otherwise wipe a local SQLite file on every restart).
+# Deploy: Render Dashboard > New + > Blueprint > select this repo > Apply.
+databases:
+  - name: docengine-db
+    plan: free
+
+services:
+  - type: web
+    name: docengine-backend
+    runtime: python
+    rootDir: backend            # build + start commands run from ./backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: docengine-db
+          property: connectionString
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      # AI provider: "auto" detects an Anthropic key (sk-ant-...) and uses
+      # Anthropic directly, else falls back to OpenRouter. Set ONE of the keys
+      # below in the dashboard; the app also works with no key (local fallback).
+      - key: AI_PROVIDER
+        value: auto
+      - key: ANTHROPIC_API_KEY
+        sync: false # set your sk-ant-... key in the dashboard
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-4-6
+      - key: OPENROUTER_API_KEY
+        sync: false # optional — only if using OpenRouter instead of Anthropic
+      - key: OPENROUTER_MODEL
+        value: anthropic/claude-sonnet-4-6
+      - key: CORS_ORIGINS
+        value: https://frontend-peach-six-99.vercel.app
+      # Background polling that auto-detects stale docs. Enabled here: every
+      # interval the sweep git-fetches the latest commits (SYNC_REMOTE=true) and
+      # re-runs change detection, so pushes to GitHub surface as stale-doc flags
+      # automatically — no manual "Detect changes" needed.
+      - key: AUTO_DETECT_ENABLED
+        value: "true"
+      - key: AUTO_DETECT_INTERVAL_SECONDS
+        value: "120"
+      - key: AUTO_DETECT_SYNC_REMOTE
+        value: "true"
+# Note: the generated-docs vector index and the cloned repo checkouts still live
+# on the ephemeral instance disk. Docs/repos/flags persist in Postgres; the chat
+# index re-builds itself from those docs on demand after a restart.

@@ -1,0 +1,48 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+
+# --- Backend runtime data ---
+backend/*.db
+backend/*.db-shm
+backend/*.db-wal
+backend/.env
+docs_storage/*
+vector_storage/*
+repositories/*
+!docs_storage/.gitkeep
+!vector_storage/.gitkeep
+!repositories/.gitkeep
+
+# --- Node / Next.js ---
+node_modules/
+.next/
+out/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts
+
+# --- Env ---
+.env
+.env*.local
+frontend/.env.local
+
+# --- Editor / OS ---
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# --- Local-only notes (kept on disk, not part of the public repo) ---
+CLAUDE.md
+PRESENTATION_GUIDE.md
+PROJECT_EXPLAINED_IN_DETAIL.md
+VIVA_FULL_FLOW.md
+VIVA_MASTER_GUIDE.md
+DEMO_SCRIPT.md
