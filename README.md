@@ -205,4 +205,3 @@ Built as a polished, demo-ready collaborative engineering project. 🚀
 
 <!-- test: verifying push pipeline -->
 
-git init git add . git commit -m "Initial commit: AI Documentation Engine" git branch -M main git remote add origin https://github.com/<aroraverse>/<AI-Documentation-Engine>.git git push -u origin main
